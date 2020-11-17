@@ -56,3 +56,14 @@ class TestUrlShortener(unittest.TestCase):
         self.assertEqual(
             0, self.urlShortener.getHitCountForShortenedUrl("www.dropbox.com/"))
         self.assertEqual(0, self.urlShortener.getHitCountForShortenedUrl(""))
+
+    def test_encodeUrlCustom(self):
+        UrlShortener.url2Long = dict()
+        UrlShortener.url2Short = dict()
+        url1 = "https://www.t-mobile.com/cell-phone/samsung-galaxy-note10-plus-5g?sku=610214662927"
+        customId = "test_id"
+        encoded = self.urlShortener.encodeUrlCustom(url1, customId)
+        urlId = encoded.split("/")[-1]
+        # Ensure url id  is length 6
+        self.assertEqual(customId, urlId)
+

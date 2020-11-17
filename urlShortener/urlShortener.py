@@ -2,8 +2,8 @@
 '''
 
 1. Shorten a URL
-    - When the user provides a URL, shorten it using a generated unique identifier. 
-    For example, given the URL `https://www.t-mobile.com/cell-phone/samsung-galaxy-note10-plus-5g?sku=610214662927`, 
+    - When the user provides a URL, shorten it using a generated unique identifier.
+    For example, given the URL `https://www.t-mobile.com/cell-phone/samsung-galaxy-note10-plus-5g?sku=610214662927`,
     a value similar to `http://localhost/abc123` might be returned.
 
 1.b. No Duplicates
@@ -12,6 +12,10 @@
 
 3. Hit Counter
     - Track the number of times a shortened URL has been accessed
+
+
+4. Custom URLs
+    - The user should have an option to set a desired URL (e.g. http://localhost/custom-value) rather than an assigned ID.
 '''
 import string
 from random import randint
@@ -25,6 +29,8 @@ class UrlShortener():
     prefix = "http://localhost/"
     urlCount = "counter"
     urlVal = "longUrl"
+    CUSTOM_ID_PRESENT = 1
+    CUSTOM_ID_MIS_MATCH = 2
 
     # https://www.t-mobile.com/cell-phone/samsung-galaxy-note10-plus-5g?sku=610214662927 -> http://localhost/abc123
 
@@ -41,7 +47,21 @@ class UrlShortener():
                         UrlShortener.urlVal: longUrl, UrlShortener.urlCount: 0}
                     UrlShortener.url2Short[longUrl] = shortId
                     break
-        # print(UrlShortener.prefix + UrlShortener.url2Short[longUrl])
+        return UrlShortener.prefix + UrlShortener.url2Short[longUrl]
+
+    def encodeUrlCustom(self, longUrl, customId):
+        if customId in UrlShortener.url2Long:
+            return UrlShortener.CUSTOM_ID_PRESENT
+
+        if longUrl in UrlShortener.url2Short:
+            if customId in UrlShortener.url2Long and UrlShortener.url2Long[customId] != longUrl:
+                return UrlShortener.CUSTOM_ID_MIS_MATCH
+            else:
+                return UrlShortener.prefix + UrlShortener.url2Short[longUrl]
+
+        UrlShortener.url2Long[customId] = {
+            UrlShortener.urlVal: longUrl, UrlShortener.urlCount: 0}
+        UrlShortener.url2Short[longUrl] = customId
         return UrlShortener.prefix + UrlShortener.url2Short[longUrl]
 
     def decodeUrl(self, shortUrl):
@@ -53,7 +73,6 @@ class UrlShortener():
         # if the id has a long url return it other wise none
         if urlId in UrlShortener.url2Long:
             UrlShortener.url2Long[urlId][UrlShortener.urlCount] += 1
-            # print(UrlShortener.url2Long[urlId])
             return UrlShortener.url2Long[urlId][UrlShortener.urlVal]
         else:
             return None
